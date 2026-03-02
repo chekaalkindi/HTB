@@ -1,0 +1,26 @@
+First from your prwn VM open terminal and scan for their port
+use NMAP tool for scanning
+
+input (change the ip target xx.xx to your ip target) -> nmap -sC -sV 10.129.xx.xx
+
+after you get the open port wich is in this case is port 23 that is telnet then go use telnet
+
+input -> telnet 10.129.xx.xx
+
+after you get in to the target, you need to login
+use username:root
+with blank password
+
+then you already get in target root. scan for their file
+
+input -> ls /root
+
+you will see flag.txt, then use cat to open it
+
+input -> cat /root/flag.txt
+
+you get the flag, block the flag and copy it using ctrl+shift+c
+
+paste in the form
+
+DONE!! :))
